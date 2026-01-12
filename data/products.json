@@ -1,0 +1,50 @@
+[
+    {
+        "id": 1,
+        "name": "Ashwagandha Vitality Elixir",
+        "price": 29.99,
+        "description": "Premium organic Ashwagandha root extract for stress relief and energy.",
+        "image": "assets/images/product1.jpg",
+        "category": "Supplements"
+    },
+    {
+        "id": 2,
+        "name": "Turmeric Golden Glow Oil",
+        "price": 45.50,
+        "description": "Radiance-boosting face oil infused with pure turmeric and saffron.",
+        "image": "assets/images/product2.jpg",
+        "category": "Skincare"
+    },
+    {
+        "id": 3,
+        "name": "Triphala Digestive Balance",
+        "price": 22.00,
+        "description": "Ancient herbal blend for healthy digestion and detoxification.",
+        "image": "assets/images/product3.jpg",
+        "category": "Supplements"
+    },
+    {
+        "id": 4,
+        "name": "Brahmi Focus Tincture",
+        "price": 34.00,
+        "description": "Sharpen your mind and memory with our potent Brahmi extract.",
+        "image": "assets/images/product4.jpg",
+        "category": "Wellness"
+    },
+    {
+        "id": 5,
+        "name": "Kumkumadi Night Serum",
+        "price": 89.99,
+        "description": "Luxury night revival serum with 24k gold bhasma and herbs.",
+        "image": "assets/images/product5.jpg",
+        "category": "Skincare"
+    },
+    {
+        "id": 6,
+        "name": "Chyawanprash Immunity Jam",
+        "price": 18.50,
+        "description": "Traditional amla-based jam to supercharge your immune system.",
+        "image": "assets/images/product6.jpg",
+        "category": "Wellness"
+    }
+]
