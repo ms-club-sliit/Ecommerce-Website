@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once 'includes/payhere_helper.php';
 
 // Check if request is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -8,12 +9,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Check if this is a PayHere order creation request
+$is_payhere_order = isset($_POST['create_payhere_order']) && $_POST['create_payhere_order'] == '1';
+
+// Get payment method
+$payment_method = $_POST['paymentMethod'] ?? 'card';
+
 // Get form data
 $user_name = trim($_POST['userName'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$phone = trim($_POST['phone'] ?? '');
+$address = trim($_POST['address'] ?? '');
+$city = trim($_POST['city'] ?? '');
+$country = trim($_POST['country'] ?? 'Sri Lanka');
+$amount = trim($_POST['amount'] ?? '');
+
+// Legacy bank transfer fields (optional now)
 $account_number = trim($_POST['accountNumber'] ?? '');
 $bank = trim($_POST['bank'] ?? '');
 $branch = trim($_POST['branch'] ?? '');
-$amount = trim($_POST['amount'] ?? '');
 $confirmation_status = $_POST['confirmationStatus'] ?? 'no';
 
 // Get user ID if logged in
@@ -26,23 +40,32 @@ if (empty($user_name)) {
     $errors[] = 'User name is required';
 }
 
-if (empty($account_number)) {
-    $errors[] = 'Account number is required';
+if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = 'Valid email is required';
 }
 
-if (empty($bank)) {
-    $errors[] = 'Bank selection is required';
+if (empty($phone)) {
+    $errors[] = 'Phone number is required';
 }
 
-if (empty($branch)) {
-    $errors[] = 'Branch is required';
+if (empty($address)) {
+    $errors[] = 'Delivery address is required';
+}
+
+if (empty($city)) {
+    $errors[] = 'City is required';
 }
 
 if (empty($amount) || !is_numeric($amount) || $amount <= 0) {
     $errors[] = 'Valid amount is required';
 }
 
-// Handle file upload
+// Validate payment method specific requirements
+if ($payment_method === 'cod' && $confirmation_status !== 'yes') {
+    $errors[] = 'Please confirm Cash on Delivery';
+}
+
+// Handle file upload (only for bank transfer if bank slip provided)
 $bank_slip_path = null;
 if (isset($_FILES['bankSlip']) && $_FILES['bankSlip']['error'] === UPLOAD_ERR_OK) {
     $file = $_FILES['bankSlip'];
@@ -80,24 +103,108 @@ if (isset($_FILES['bankSlip']) && $_FILES['bankSlip']['error'] === UPLOAD_ERR_OK
     }
 }
 
-// If there are validation errors, redirect back with error message
+// If there are validation errors, return error
 if (!empty($errors)) {
-    $_SESSION['checkout_error'] = implode(', ', $errors);
-    header('Location: checkout.php');
-    exit;
+    if ($is_payhere_order) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => implode(', ', $errors)]);
+        exit;
+    } else {
+        $_SESSION['checkout_error'] = implode(', ', $errors);
+        header('Location: checkout.php');
+        exit;
+    }
+}
+
+// Determine order and payment status based on payment method
+$order_status = 'pending';
+$payment_status = 'pending';
+
+if ($payment_method === 'cod') {
+    $order_status = 'confirmed';
+    $payment_status = 'pending'; // Will be completed on delivery
+} elseif ($payment_method === 'card') {
+    $order_status = 'pending';
+    $payment_status = 'pending'; // Will be updated by PayHere notification
 }
 
 // Insert order into database
 try {
     $conn = getDBConnection();
     
-    $stmt = $conn->prepare("INSERT INTO orders (user_id, user_name, account_number, bank, branch, amount, confirmation_status, bank_slip_path, order_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+    // Prepare statement with new fields
+    $stmt = $conn->prepare("INSERT INTO orders 
+        (user_id, user_name, account_number, bank, branch, amount, 
+         confirmation_status, bank_slip_path, order_status, payment_method, 
+         payment_status, payhere_order_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
-    $stmt->bind_param("issssdss", $user_id, $user_name, $account_number, $bank, $branch, $amount, $confirmation_status, $bank_slip_path);
+    // For card payments, create a PayHere order ID
+    $payhere_order_id = null;
+    
+    $stmt->bind_param("issssdssssss", 
+        $user_id, 
+        $user_name, 
+        $account_number, 
+        $bank, 
+        $branch, 
+        $amount, 
+        $confirmation_status, 
+        $bank_slip_path, 
+        $order_status,
+        $payment_method,
+        $payment_status,
+        $payhere_order_id
+    );
     
     if ($stmt->execute()) {
         $order_id = $stmt->insert_id;
-        $_SESSION['checkout_success'] = 'Order submitted successfully! Order ID: #' . str_pad($order_id, 6, '0', STR_PAD_LEFT);
+        
+        // For PayHere card payments, generate order ID and hash
+        if ($payment_method === 'card' && $is_payhere_order) {
+            // Generate PayHere order ID
+            $payhere_order_id = generatePayHereOrderId($order_id);
+            
+            // Update order with PayHere order ID
+            $update_stmt = $conn->prepare("UPDATE orders SET payhere_order_id = ? WHERE id = ?");
+            $update_stmt->bind_param("si", $payhere_order_id, $order_id);
+            $update_stmt->execute();
+            $update_stmt->close();
+            
+            // Generate hash for PayHere
+            $hash = generatePayHereHash(
+                PAYHERE_MERCHANT_ID,
+                $payhere_order_id,
+                $amount,
+                'LKR'
+            );
+            
+            // Log the order creation
+            logPaymentActivity('PayHere order created', [
+                'order_id' => $order_id,
+                'payhere_order_id' => $payhere_order_id,
+                'amount' => $amount,
+                'user_name' => $user_name
+            ]);
+            
+            // Return JSON response for AJAX request
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'order_id' => $order_id,
+                'payhere_order_id' => $payhere_order_id,
+                'hash' => $hash,
+                'merchant_id' => PAYHERE_MERCHANT_ID
+            ]);
+            exit;
+        }
+        
+        // For COD and other methods, redirect with success message
+        $_SESSION['checkout_success'] = 'Order placed successfully! Order ID: #' . str_pad($order_id, 6, '0', STR_PAD_LEFT);
+        
+        if ($payment_method === 'cod') {
+            $_SESSION['checkout_success'] .= ' - Cash on Delivery confirmed.';
+        }
         
         // Redirect to dashboard if logged in, otherwise to success page
         if ($user_id) {
@@ -106,15 +213,27 @@ try {
             header('Location: checkout.php?success=1');
         }
     } else {
-        $_SESSION['checkout_error'] = 'Failed to submit order. Please try again.';
-        header('Location: checkout.php');
+        if ($is_payhere_order) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Failed to create order']);
+            exit;
+        } else {
+            $_SESSION['checkout_error'] = 'Failed to submit order. Please try again.';
+            header('Location: checkout.php');
+        }
     }
     
     $stmt->close();
     $conn->close();
     
 } catch (Exception $e) {
-    $_SESSION['checkout_error'] = 'An error occurred: ' . $e->getMessage();
-    header('Location: checkout.php');
+    if ($is_payhere_order) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        exit;
+    } else {
+        $_SESSION['checkout_error'] = 'An error occurred: ' . $e->getMessage();
+        header('Location: checkout.php');
+    }
 }
 ?>

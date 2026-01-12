@@ -72,6 +72,11 @@ $conn->close();
                     <i class="fas fa-file-pdf"></i>
                     Export Products PDF
                 </a>
+                <div class="nav-section-title">Quick Actions</div>
+                <a href="../products.php" class="admin-nav-item shop-link" target="_blank">
+                    <i class="fas fa-shopping-bag"></i>
+                    Visit Shop
+                </a>
             </nav>
         </aside>
 
@@ -81,6 +86,9 @@ $conn->close();
             <header class="admin-header">
                 <h1>Dashboard Overview</h1>
                 <div class="admin-user-menu">
+                    <a href="../products.php" class="visit-shop-btn" target="_blank">
+                        <i class="fas fa-shopping-bag"></i> Visit Shop
+                    </a>
                     <div class="admin-user-info">
                         <div class="admin-user-avatar">
                             <?php echo strtoupper(substr($_SESSION['user_name'], 0, 1)); ?>

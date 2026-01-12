@@ -12,6 +12,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State
     let cart = JSON.parse(localStorage.getItem('ayurvedaCart')) || [];
+    
+    // Clean up any invalid items from localStorage on init
+    cart = cart.filter(item => {
+        return item && 
+               item.id && 
+               item.title && 
+               item.price !== null && 
+               item.price !== undefined && 
+               !isNaN(parseFloat(item.price)) && 
+               item.image;
+    });
+    
+    // Save cleaned cart
+    if (cart.length > 0) {
+        localStorage.setItem('ayurvedaCart', JSON.stringify(cart));
+    }
 
     // Init
     updateCartCount();
@@ -36,41 +52,59 @@ document.addEventListener('DOMContentLoaded', () => {
             // Use currentTarget to always get the button element, not the clicked child element
             const clickedButton = e.currentTarget;
 
-            // Check if button has data attributes directly (viewproduct.php)
-            if (clickedButton.dataset.id && clickedButton.dataset.title) {
+            let productData = null;
+
+            // Check if button has data attributes directly (viewproduct.php or index.php)
+            if (clickedButton.dataset.id && (clickedButton.dataset.title || clickedButton.dataset.name)) {
                 const id = clickedButton.dataset.id;
-                const title = clickedButton.dataset.title;
+                const title = clickedButton.dataset.title || clickedButton.dataset.name;
                 const price = parseFloat(clickedButton.dataset.price);
                 const image = clickedButton.dataset.image;
 
-                addToCart({ id, title, price, image });
+                if (id && title && !isNaN(price) && image) {
+                    productData = { id, title, price, image };
+                }
             } else {
                 // Otherwise, look for product-card parent (products.php)
                 const card = clickedButton.closest('.product-card');
                 if (card) {
-                    const id = card.dataset.id;
-                    const title = card.querySelector('.product-title').innerText;
-                    const priceText = card.querySelector('.product-price').innerText;
-                    const price = parseFloat(priceText.replace('$', ''));
-                    const image = card.querySelector('img').src;
+                    const id = card.dataset.id || clickedButton.dataset.id;
+                    const titleElement = card.querySelector('.product-title');
+                    const priceElement = card.querySelector('.product-price');
+                    const imageElement = card.querySelector('img');
 
-                    addToCart({ id, title, price, image });
+                    if (titleElement && priceElement && imageElement) {
+                        const title = titleElement.innerText;
+                        const priceText = priceElement.innerText;
+                        const price = parseFloat(priceText.replace(/[₹$,]/g, '').trim());
+                        const image = imageElement.src;
+
+                        if (id && title && !isNaN(price) && image) {
+                            productData = { id, title, price, image };
+                        }
+                    }
                 }
             }
 
-            // Visual feedback
-            const originalText = clickedButton.innerText;
-            clickedButton.innerText = "Added!";
-            clickedButton.style.backgroundColor = "var(--color-secondary)";
-            clickedButton.style.color = "var(--color-primary)";
+            if (productData) {
+                addToCart(productData);
 
-            setTimeout(() => {
-                clickedButton.innerText = originalText;
-                clickedButton.style.backgroundColor = "";
-                clickedButton.style.color = "";
-            }, 1000);
+                // Visual feedback
+                const originalText = clickedButton.innerText;
+                clickedButton.innerText = "Added!";
+                clickedButton.style.backgroundColor = "var(--color-secondary)";
+                clickedButton.style.color = "var(--color-primary)";
 
-            openCart();
+                setTimeout(() => {
+                    clickedButton.innerText = originalText;
+                    clickedButton.style.backgroundColor = "";
+                    clickedButton.style.color = "";
+                }, 1000);
+
+                openCart();
+            } else {
+                console.error('Failed to add product to cart: Invalid product data');
+            }
         });
     });
 
@@ -143,38 +177,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCartItems() {
+        if (!cartItemsContainer || !cartTotalElement) {
+            console.error('Cart elements not found');
+            return;
+        }
+
         cartItemsContainer.innerHTML = '';
         let total = 0;
 
+        // Filter out any invalid items (null price or missing data)
+        cart = cart.filter(item => item && item.price && !isNaN(item.price) && item.id && item.title);
+        saveCart();
+
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = '<p style="text-align: center; color: #888; margin-top: 2rem;">Your cart is empty.</p>';
+            cartTotalElement.innerText = '₹0.00';
         } else {
             cart.forEach(item => {
-                const itemTotal = item.price * item.quantity;
+                const itemPrice = parseFloat(item.price) || 0;
+                const itemQuantity = parseInt(item.quantity) || 1;
+                const itemTotal = itemPrice * itemQuantity;
                 total += itemTotal;
 
                 const cartItem = document.createElement('div');
                 cartItem.classList.add('cart-item');
                 cartItem.innerHTML = `
-                    <img src="${item.image}" alt="${item.title}">
+                    <img src="${item.image || 'assets/images/placeholder.jpg'}" alt="${item.title}" onerror="this.src='assets/images/placeholder.jpg'">
                     <div class="cart-item-info">
                         <h4 class="cart-item-title">${item.title}</h4>
-                        <span class="cart-item-price">$${item.price.toFixed(2)}</span>
+                        <span class="cart-item-price">₹${itemPrice.toFixed(2)}</span>
                         <div class="cart-item-controls">
                             <div class="quantity-controls">
                                 <button class="decrease-qty" data-id="${item.id}">-</button>
-                                <span style="margin: 0 10px;">${item.quantity}</span>
+                                <span class="quantity-display">${itemQuantity}</span>
                                 <button class="increase-qty" data-id="${item.id}">+</button>
                             </div>
-                            <button class="remove-item" data-id="${item.id}" style="border:none; background:none; color:red; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                            <button class="remove-item" data-id="${item.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 `;
                 cartItemsContainer.appendChild(cartItem);
             });
-        }
 
-        cartTotalElement.innerText = '$' + total.toFixed(2);
+            cartTotalElement.innerText = '₹' + total.toFixed(2);
+        }
 
         // Attach event listeners to new elements
         document.querySelectorAll('.decrease-qty').forEach(btn => {
@@ -186,9 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.querySelectorAll('.remove-item').forEach(btn => {
-            // Handle the button itself or the icon inside
-            const id = btn.dataset.id || btn.closest('button').dataset.id;
-            btn.addEventListener('click', () => removeFromCart(id));
+            btn.addEventListener('click', (e) => {
+                // Handle the button itself or the icon inside
+                const id = e.currentTarget.dataset.id;
+                if (id) removeFromCart(id);
+            });
         });
     }
 });

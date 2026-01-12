@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VedaLife | Premium Ayurvedic Wellness</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <script src="assets/js/script.js?v=1.1" defer></script>
+    <script src="assets/js/script.js?v=1.2" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -72,7 +72,131 @@
         </div>
     </section>
 
+    <!-- About Section -->
+    <div class="container" style="margin-bottom: 5rem;">
+        <div style="text-align: center; max-width: 900px; margin: 0 auto;">
+            <h2 class="section-title">Welcome to VedaLife</h2>
+            <p style="font-size: 1.1rem; line-height: 1.8; color: var(--color-text); margin-bottom: 2rem;">
+                At VedaLife, we bridge ancient Ayurvedic wisdom with modern wellness needs. Our carefully curated collection features 100% organic, handcrafted herbal products sourced from the pristine farms of Kerala. Each product is meticulously prepared using traditional methods passed down through generations, ensuring maximum potency and authenticity.
+            </p>
+            <p style="font-size: 1.1rem; line-height: 1.8; color: var(--color-text);">
+                From immunity-boosting supplements to natural skincare solutions, our diverse range addresses various wellness needs. We believe in the power of nature to heal, restore, and rejuvenate. Every product undergoes rigorous quality checks and is free from harmful chemicals, making them safe for the whole family. Join thousands of satisfied customers who have embraced the Ayurvedic lifestyle with VedaLife.
+            </p>
+        </div>
+    </div>
 
+    <!-- Featured Products Section -->
+    <div class="container" style="margin-bottom: 5rem;">
+        <h2 class="section-title">Featured Products</h2>
+        <div class="products-grid">
+            <?php
+            require_once 'config/database.php';
+            $conn = getDBConnection();
+            
+            // Fetch 3 random featured products
+            $sql = "SELECT * FROM products ORDER BY RAND() LIMIT 3";
+            $result = $conn->query($sql);
+            
+            if ($result && $result->num_rows > 0) {
+                while ($product = $result->fetch_assoc()) {
+                    ?>
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" onerror="this.src='assets/images/placeholder.jpg'">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category"><?php echo htmlspecialchars($product['category']); ?></span>
+                            <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
+                            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;"><?php echo htmlspecialchars(substr($product['description'], 0, 80)) . '...'; ?></p>
+                            <span class="product-price">₹<?php echo number_format($product['price'], 2); ?></span>
+                            <button class="add-to-cart" 
+                                    data-id="<?php echo $product['id']; ?>"
+                                    data-name="<?php echo htmlspecialchars($product['name']); ?>"
+                                    data-price="<?php echo $product['price']; ?>"
+                                    data-image="<?php echo htmlspecialchars($product['image']); ?>">
+                                Add to Cart
+                            </button>
+                            <a href="viewproduct.php?id=<?php echo $product['id']; ?>" class="view-product" style="display: inline-block; text-align: center;">View Product</a>
+                        </div>
+                    </div>
+                    <?php
+                }
+            } else {
+                echo '<p style="text-align: center; grid-column: 1/-1; color: #888;">No products available at the moment.</p>';
+            }
+            $conn->close();
+            ?>
+        </div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="products.php" class="btn btn-primary">View All Products</a>
+        </div>
+    </div>
+
+    <!-- Customer Testimonials Section -->
+    <div class="container" style="margin-bottom: 5rem;">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem;">
+            <div style="background: white; padding: 2rem; border-radius: var(--border-radius); box-shadow: var(--shadow-md); border-left: 4px solid var(--color-secondary);">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; color: var(--color-secondary);">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p style="font-style: italic; color: var(--color-text); margin-bottom: 1.5rem; line-height: 1.7;">
+                    "I've been using VedaLife's Ashwagandha capsules for three months now, and the difference in my stress levels is remarkable. The quality is outstanding, and I love that everything is organic and natural!"
+                </p>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">P</div>
+                    <div>
+                        <h4 style="color: var(--color-primary); margin-bottom: 0.2rem;">Priya Sharma</h4>
+                        <p style="font-size: 0.85rem; color: #888;">Verified Customer</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 2rem; border-radius: var(--border-radius); box-shadow: var(--shadow-md); border-left: 4px solid var(--color-secondary);">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; color: var(--color-secondary);">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p style="font-style: italic; color: var(--color-text); margin-bottom: 1.5rem; line-height: 1.7;">
+                    "The Triphala powder has transformed my digestive health. Fast shipping, excellent packaging, and authentic Ayurvedic products. VedaLife is now my go-to wellness store!"
+                </p>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">R</div>
+                    <div>
+                        <h4 style="color: var(--color-primary); margin-bottom: 0.2rem;">Rajesh Kumar</h4>
+                        <p style="font-size: 0.85rem; color: #888;">Verified Customer</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 2rem; border-radius: var(--border-radius); box-shadow: var(--shadow-md); border-left: 4px solid var(--color-secondary);">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; color: var(--color-secondary);">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p style="font-style: italic; color: var(--color-text); margin-bottom: 1.5rem; line-height: 1.7;">
+                    "Amazing products! The Brahmi oil has done wonders for my hair, and my family loves the Chyawanprash. Great customer service and genuine Ayurvedic formulations. Highly recommended!"
+                </p>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;">A</div>
+                    <div>
+                        <h4 style="color: var(--color-primary); margin-bottom: 0.2rem;">Anjali Desai</h4>
+                        <p style="font-size: 0.85rem; color: #888;">Verified Customer</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Features Section -->
     <div class="container" style="margin-bottom: 5rem;">

@@ -91,6 +91,22 @@ body {
     letter-spacing: 1px;
 }
 
+/* Shop Link Styling */
+.admin-nav-item.shop-link {
+    background: linear-gradient(135deg, var(--admin-success) 0%, #229954 100%);
+    margin: 10px 15px;
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    font-weight: 600;
+    color: white;
+}
+
+.admin-nav-item.shop-link:hover {
+    background: linear-gradient(135deg, #229954 0%, var(--admin-success) 100%);
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
 /* Main Content */
 .admin-main {
     margin-left: var(--sidebar-width);
@@ -158,6 +174,32 @@ body {
 .logout-btn:hover {
     background: #c0392b;
     transform: translateY(-2px);
+}
+
+/* Visit Shop Button in Header */
+.visit-shop-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--admin-success) 0%, #229954 100%);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.visit-shop-btn:hover {
+    background: linear-gradient(135deg, #229954 0%, var(--admin-success) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.visit-shop-btn i {
+    font-size: 16px;
 }
 
 /* Content Area */

@@ -1,0 +1,35 @@
+# Add these lines to your .gitignore file to protect sensitive information
+
+# PayHere Configuration (if you create a real config file)
+includes/payhere_config.php
+
+# Payment Logs
+logs/
+logs/payment_log.txt
+
+# Uploaded Files
+uploads/bank_slips/
+uploads/products/
+
+# Environment Variables
+.env
+.env.local
+
+# Database Backups
+*.sql
+backups/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# IDE Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
