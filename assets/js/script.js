@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (titleElement && priceElement && imageElement) {
                         const title = titleElement.innerText;
                         const priceText = priceElement.innerText;
-                        const price = parseFloat(priceText.replace(/[₹$,]/g, '').trim());
+                        const price = parseFloat(priceText.replace(/[₹$Rs.,\s]/g, '').trim());
                         const image = imageElement.src;
 
                         if (id && title && !isNaN(price) && image) {
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = '<p style="text-align: center; color: #888; margin-top: 2rem;">Your cart is empty.</p>';
-            cartTotalElement.innerText = '₹0.00';
+            cartTotalElement.innerText = 'Rs. 0.00';
         } else {
             cart.forEach(item => {
                 const itemPrice = parseFloat(item.price) || 0;
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="${item.image || 'assets/images/placeholder.jpg'}" alt="${item.title}" onerror="this.src='assets/images/placeholder.jpg'">
                     <div class="cart-item-info">
                         <h4 class="cart-item-title">${item.title}</h4>
-                        <span class="cart-item-price">₹${itemPrice.toFixed(2)}</span>
+                        <span class="cart-item-price">Rs. ${itemPrice.toFixed(2)}</span>
                         <div class="cart-item-controls">
                             <div class="quantity-controls">
                                 <button class="decrease-qty" data-id="${item.id}">-</button>
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cartItemsContainer.appendChild(cartItem);
             });
 
-            cartTotalElement.innerText = '₹' + total.toFixed(2);
+            cartTotalElement.innerText = 'Rs. ' + total.toFixed(2);
         }
 
         // Attach event listeners to new elements

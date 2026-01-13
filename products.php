@@ -70,7 +70,7 @@ $conn->close();
             <div class="cart-footer">
                 <div class="cart-total">
                     <span>Total</span>
-                    <span id="cartTotal">$0.00</span>
+                    <span id="cartTotal">Rs. 0.00</span>
                 </div>
                 <button class="checkout-btn">Proceed to Checkout</button>
             </div>
@@ -110,10 +110,10 @@ $conn->close();
                 </div>
                 <select id="priceFilter" class="filter-select">
                     <option value="all">All Prices</option>
-                    <option value="0-20">Under $20</option>
-                    <option value="20-30">$20 - $30</option>
-                    <option value="30-50">$30 - $50</option>
-                    <option value="50-999">Over $50</option>
+                    <option value="0-6000">Under Rs. 6,000</option>
+                    <option value="6000-9000">Rs. 6,000 - 9,000</option>
+                    <option value="9000-15000">Rs. 9,000 - 15,000</option>
+                    <option value="15000-999999">Over Rs. 15,000</option>
                 </select>
             </div>
             
@@ -139,7 +139,7 @@ $conn->close();
                             <p class="product-description" style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
                                 <?php echo htmlspecialchars(substr($product['description'], 0, 100)); ?><?php echo strlen($product['description']) > 100 ? '...' : ''; ?>
                             </p>
-                            <span class="product-price">₹<?php echo number_format($product['price'], 2); ?></span>
+                            <span class="product-price">Rs. <?php echo number_format($product['price'], 2); ?></span>
                             <button class="add-to-cart" 
                                     data-id="<?php echo $product['id']; ?>"
                                     data-name="<?php echo htmlspecialchars($product['name']); ?>"

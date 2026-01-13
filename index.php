@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VedaLife | Premium Ayurvedic Wellness</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <script src="assets/js/script.js?v=1.2" defer></script>
+    <script src="assets/js/script.js?v=1.3" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -57,7 +57,7 @@
             <div class="cart-footer">
                 <div class="cart-total">
                     <span>Total</span>
-                    <span id="cartTotal">$0.00</span>
+                    <span id="cartTotal">Rs. 0.00</span>
                 </div>
                 <button href="checkout.php" class="checkout-btn">Proceed to Checkout</button>
             </div>
@@ -108,7 +108,7 @@
                             <span class="product-category"><?php echo htmlspecialchars($product['category']); ?></span>
                             <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
                             <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;"><?php echo htmlspecialchars(substr($product['description'], 0, 80)) . '...'; ?></p>
-                            <span class="product-price">₹<?php echo number_format($product['price'], 2); ?></span>
+                            <span class="product-price">Rs. <?php echo number_format($product['price'], 2); ?></span>
                             <button class="add-to-cart" 
                                     data-id="<?php echo $product['id']; ?>"
                                     data-name="<?php echo htmlspecialchars($product['name']); ?>"

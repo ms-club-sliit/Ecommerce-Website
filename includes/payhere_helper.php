@@ -6,7 +6,7 @@
 
 // PayHere Configuration
 define('PAYHERE_MERCHANT_ID', '1233568'); // Replace with your Merchant ID
-define('PAYHERE_MERCHANT_SECRET', 'MTQxOTc5OTY0NzkwOTIwNzI3Mzk2NDEyMjQ5OTMyMTYyNTg3MzI='); // Replace with your Merchant Secret
+define('PAYHERE_MERCHANT_SECRET', 'MzM1MTYzNjg2NDMxODkxNDIxMTkzNDU2ODUxMDM1MTUwODM3NjA3'); // Replace with your Merchant Secret
 define('PAYHERE_SANDBOX', true); // Set to false for production
 
 /**
@@ -21,6 +21,9 @@ define('PAYHERE_SANDBOX', true); // Set to false for production
 function generatePayHereHash($merchant_id, $order_id, $amount, $currency = 'LKR') {
     $merchant_secret = PAYHERE_MERCHANT_SECRET;
     
+    // Decode base64 merchant secret (PayHere provides it in base64 format)
+    $decoded_secret = base64_decode($merchant_secret);
+    
     // Format amount to 2 decimal places
     $formatted_amount = number_format($amount, 2, '.', '');
     
@@ -31,7 +34,7 @@ function generatePayHereHash($merchant_id, $order_id, $amount, $currency = 'LKR'
             $order_id . 
             $formatted_amount . 
             $currency . 
-            strtoupper(md5($merchant_secret)) 
+            strtoupper(md5($decoded_secret)) 
         ) 
     );
     
@@ -52,6 +55,9 @@ function generatePayHereHash($merchant_id, $order_id, $amount, $currency = 'LKR'
 function verifyPayHerePayment($merchant_id, $order_id, $payhere_amount, $payhere_currency, $status_code, $md5sig) {
     $merchant_secret = PAYHERE_MERCHANT_SECRET;
     
+    // Decode base64 merchant secret (PayHere provides it in base64 format)
+    $decoded_secret = base64_decode($merchant_secret);
+    
     // Generate local hash
     $local_md5sig = strtoupper(
         md5(
@@ -60,7 +66,7 @@ function verifyPayHerePayment($merchant_id, $order_id, $payhere_amount, $payhere
             $payhere_amount . 
             $payhere_currency . 
             $status_code . 
-            strtoupper(md5($merchant_secret)) 
+            strtoupper(md5($decoded_secret)) 
         ) 
     );
     

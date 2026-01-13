@@ -134,17 +134,6 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                         </label>
                         
                         <label class="payment-method-card">
-                            <input type="radio" name="paymentMethod" value="paypal">
-                            <div class="payment-method-content">
-                                <div class="payment-icons">
-                                    <i class="fab fa-paypal"></i>
-                                </div>
-                                <span>PayPal</span>
-                                <p class="payment-desc">Pay with your PayPal account</p>
-                            </div>
-                        </label>
-                        
-                        <label class="payment-method-card">
                             <input type="radio" name="paymentMethod" value="cod">
                             <div class="payment-method-content">
                                 <div class="payment-icons">
