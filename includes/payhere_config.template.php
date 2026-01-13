@@ -7,8 +7,8 @@
 
 return [
     // PayHere Merchant Credentials
-    'merchant_id' => '121XXXX', // Your PayHere Merchant ID
-    'merchant_secret' => 'XXXXXXXXXXXXX', // Your PayHere Merchant Secret
+    'merchant_id' => '1233568 ', // Your PayHere Merchant ID
+    'merchant_secret' => 'MzM1MTYzNjg2NDMxODkxNDIxMTkzNDU2ODUxMDM1MTUwODM3NjA3', // Your PayHere Merchant Secret
     
     // Environment Settings
     'sandbox' => true, // Set to false for production
