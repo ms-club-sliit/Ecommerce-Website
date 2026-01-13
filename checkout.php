@@ -1,6 +1,11 @@
 <?php 
 session_start();
 
+// Prevent caching of checkout page
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 // Restrict access to registered users only
 if (!isset($_SESSION['logged_in']) || !$_SESSION['logged_in']) {
     // Store the intended destination for redirect after login
@@ -31,6 +36,7 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.payhere.lk https://sandbox.payhere.lk https://www.google-analytics.com https://cdnjs.cloudflare.com https://maxcdn.bootstrapcdn.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://maxcdn.bootstrapcdn.com; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://www.payhere.lk https://sandbox.payhere.lk; frame-src 'self' https://www.payhere.lk https://sandbox.payhere.lk;">
     <title>Checkout | VedaLife - Payment Details</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/checkout.css">
@@ -326,10 +332,6 @@ if (isset($_GET['success']) && $_GET['success'] == 1) {
                 bankDetailsSection.style.display = 'none';
                 confirmationSection.style.display = 'none';
                 btnText.textContent = 'Pay with Card';
-            } else if (selectedMethod === 'paypal') {
-                bankDetailsSection.style.display = 'none';
-                confirmationSection.style.display = 'none';
-                btnText.textContent = 'Pay with PayPal';
             } else if (selectedMethod === 'cod') {
                 bankDetailsSection.style.display = 'none';
                 confirmationSection.style.display = 'block';

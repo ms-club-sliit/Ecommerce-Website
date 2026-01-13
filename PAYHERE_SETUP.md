@@ -46,7 +46,7 @@ First, you need to update your database to support the new payment methods.
 
    ```php
    define('PAYHERE_MERCHANT_ID', '1233568'); // Replace with your Merchant ID
-   define('PAYHERE_MERCHANT_SECRET', 'MTQxOTc5OTY0NzkwOTIwNzI3Mzk2NDEyMjQ5OTMyMTYyNTg3MzI='); // Replace with your Merchant Secret
+   define('PAYHERE_MERCHANT_SECRET', 'MzM1MTYzNjg2NDMxODkxNDIxMTkzNDU2ODUxMDM1MTUwODM3NjA3'); // Replace with your Merchant Secret
    define('PAYHERE_SANDBOX', true); // Set to false for production
    ```
 
