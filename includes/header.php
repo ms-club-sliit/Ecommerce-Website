@@ -1,3 +1,13 @@
+<?php 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if user is logged in
+$is_logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'];
+$user_name = $_SESSION['user_name'] ?? 'User';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -24,6 +34,19 @@
                 <div class="cart-icon" id="cartBtn">
                     <i class="fas fa-shopping-bag"></i>
                     <span class="cart-count">0</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                    <div class="auth-links">
+                        <?php if ($is_logged_in): ?>
+                            <a href="dashboard.php" class="auth-btn" style="background: var(--color-primary); color: white;">
+                                <i class="fas fa-user"></i> Dashboard
+                            </a>
+                            <a href="logout.php" class="auth-btn" style="background: var(--color-accent); color: white; border-color: var(--color-accent);">Logout</a>
+                        <?php else: ?>
+                            <a href="login.php" class="auth-btn">Login</a>
+                            <a href="signup.php" class="auth-btn">Sign Up</a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </nav>
         </div>
